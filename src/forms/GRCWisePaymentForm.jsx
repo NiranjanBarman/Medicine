@@ -81,7 +81,7 @@ const GRCWisePaymentForm = () => {
         }
 
         const paymentAmount = safeParseFloat(payNow);
-        if (currentGRCDetails && paymentAmount > currentGRCDetails.dueAmount) {
+        if (currentGRCDetails && paymentAmount >= currentGRCDetails.dueAmount) {
             alert(`Payment amount (₹${paymentAmount.toFixed(2)}) cannot exceed the Due Amount of (₹${currentGRCDetails.dueAmount.toFixed(2)}). Please enter a valid amount.`);
             return;
         }
