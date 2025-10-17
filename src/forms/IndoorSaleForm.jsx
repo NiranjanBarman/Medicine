@@ -8,61 +8,310 @@ import PrintIndoorInvoice from "../components/PrintIndoorInvoice";
 const safeParseFloat = (value) => parseFloat(value || 0) || 0;
 const safeParseInt = (value) => parseInt(value || 0) || 0;
 
-// --- Dummy Patient Data ---
+// --- DUMMY IPD DATA STRUCTURE (for local testing/demonstration) ---
 const DUMMY_INDOOR_PATIENTS = [
   {
-    id: "PN1001",
-    name: "Aman Sharma",
-    category: "Private",
-    contact: "9876543210",
-    sex: "Male",
-    age: "35",
-    address: "12, Civil Lines",
-    state: "Delhi",
-    doctor: "Dr. Rakesh Singh",
-    regNo: "MC-4567",
-    bedDetails: "Ward-B, Bed-102",
+    "id": 25,
+    "admissionId": "ADM0000000025_25-26",
+    "bed": {
+      "id": 6,
+      "name": "106",
+      "occupied": true,
+      "active": true,
+      "amount": 250,
+      "wardDTO": {
+        "id": 1,
+        "name": "Male-General",
+        "amount": 5000,
+        "floorDTO": {
+          "id": 1,
+          "name": "1st Floor"
+        }
+      }
+    },
+    "associates": {
+      "id": 10,
+      "name": "IPD",
+      "alternativeName": "",
+      "mobileNo": "8975758965",
+      "emailId": "ipd@hospital.com\t",
+      "active": true
+    },
+    "provider": null,
+    "patients": {
+      "id": 33,
+      "code": null,
+      "name": "kunal deb sharma",
+      "gender": "MALE",
+      "address": "Kolkata,Kolkata",
+      "dob": "",
+      "phone": "5588669933",
+      "email": "kunaldeb@gmail.com",
+      "age": 46,
+      "month": null,
+      "day": null,
+      "initial": "Mr.",
+      "initialId": 1,
+      "regId": "REG0000000033_25-26",
+      "mobileBelongsTo": "self",
+      "mobileBelongsToName": null
+    },
+    "doctorInChargeFirst": {
+      "id": 5,
+      "name": "komal dey",
+      "email": null,
+      "username": "6899999999",
+      "altName": null,
+      "altName2": null,
+      "regNo": null,
+      "religion": null,
+      "gender": "female",
+      "identifier": null,
+      "address": "KOLKATA",
+      "pinCode": null,
+      "dob": null,
+      "appointDate": null,
+      "whatsappNo": null,
+      "degree": null,
+      "married": null,
+      "anniversary": null,
+      "spouseDoctor": null,
+      "spouseName": null,
+      "noOfChildren": null,
+      "drinks": null,
+      "typeOfDrink": null,
+      "movies": null,
+      "movieLang": null,
+      "cricket": null,
+      "football": null,
+      "music": null,
+      "musicLang": null,
+      "type": null,
+      "phone": "6899999999",
+      "position": "Dr.",
+      "speciality": null,
+      "referral": [],
+      "active": true
+    },
+    "doctorInChargeSecond": null,
+    "vip": false,
+    "referredFrom": "",
+    "inHouseRemarks": "",
+    "remarks": "",
+    "foodHabits": "",
+    "admittedByName": null,
+    "admittedByPhone": "",
+    "discharged": false,
+    "createdAt": "2025-10-04T06:18:12.556+00:00",
+    "updatedAt": "2025-10-04T06:18:12.664+00:00"
   },
   {
-    id: "PN1002",
-    name: "Priya Verma",
-    category: "General",
-    contact: "9000011111",
-    sex: "Female",
-    age: "52",
-    address: "34, South Street",
-    state: "Maharashtra",
-    doctor: "Dr. Sunita Reddy",
-    regNo: "MC-1234",
-    bedDetails: "ICU, Bed-1",
+    "id": 26,
+    "admissionId": "ADM0000000026_25-26",
+    "bed": {
+      "id": 7,
+      "name": "201",
+      "occupied": true,
+      "active": true,
+      "amount": 500,
+      "wardDTO": {
+        "id": 2,
+        "name": "Female-Private",
+        "amount": 8000,
+        "floorDTO": {
+          "id": 2,
+          "name": "2nd Floor"
+        }
+      }
+    },
+    "associates": {
+      "id": 10,
+      "name": "IPD",
+      "alternativeName": "",
+      "mobileNo": "8975758965",
+      "emailId": "ipd@hospital.com\t",
+      "active": true
+    },
+    "provider": null,
+    "patients": {
+      "id": 34,
+      "code": null,
+      "name": "Smita Roy",
+      "gender": "FEMALE",
+      "address": "Pune,Maharashtra",
+      "dob": "",
+      "phone": "9090909090",
+      "email": "smita.roy@gmail.com",
+      "age": 32,
+      "month": null,
+      "day": null,
+      "initial": "Ms.",
+      "initialId": 2,
+      "regId": "REG0000000034_25-26",
+      "mobileBelongsTo": "self",
+      "mobileBelongsToName": null
+    },
+    "doctorInChargeFirst": {
+      "id": 6,
+      "name": "Dr. Anita Sen",
+      "email": null,
+      "username": "7777777777",
+      "altName": null,
+      "altName2": null,
+      "regNo": null,
+      "religion": null,
+      "gender": "female",
+      "identifier": null,
+      "address": "PUNE",
+      "pinCode": null,
+      "dob": null,
+      "appointDate": null,
+      "whatsappNo": null,
+      "degree": null,
+      "married": null,
+      "anniversary": null,
+      "spouseDoctor": null,
+      "spouseName": null,
+      "noOfChildren": null,
+      "drinks": null,
+      "typeOfDrink": null,
+      "movies": null,
+      "movieLang": null,
+      "cricket": null,
+      "football": null,
+      "music": null,
+      "musicLang": null,
+      "type": null,
+      "phone": "7777777777",
+      "position": "Dr.",
+      "speciality": null,
+      "referral": [],
+      "active": true
+    },
+    "doctorInChargeSecond": null,
+    "vip": true,
+    "referredFrom": "Dr. Sharma Clinic",
+    "inHouseRemarks": "Needs quiet room",
+    "remarks": "High priority care",
+    "foodHabits": "Vegetarian",
+    "admittedByName": "Self",
+    "admittedByPhone": "9090909090",
+    "discharged": false,
+    "createdAt": "2025-10-04T08:00:00.000+00:00",
+    "updatedAt": "2025-10-04T08:00:00.000+00:00"
   },
   {
-    id: "PN1003",
-    name: "Rahul Khanna",
-    category: "Emergency",
-    contact: "8765432109",
-    sex: "Male",
-    age: "24",
-    address: "7, East Avenue",
-    state: "Uttar Pradesh",
-    doctor: "Dr. Sameer Patel",
-    regNo: "MC-7890",
-    bedDetails: "ER, Observation-5",
-  },
+    "id": 27,
+    "admissionId": "ADM0000000027_25-26",
+    "bed": {
+      "id": 8,
+      "name": "305",
+      "occupied": true,
+      "active": true,
+      "amount": 750,
+      "wardDTO": {
+        "id": 3,
+        "name": "ICU-General",
+        "amount": 10000,
+        "floorDTO": {
+          "id": 3,
+          "name": "3rd Floor"
+        }
+      }
+    },
+    "associates": {
+      "id": 10,
+      "name": "IPD",
+      "alternativeName": "",
+      "mobileNo": "8975758965",
+      "emailId": "ipd@hospital.com\t",
+      "active": true
+    },
+    "provider": null,
+    "patients": {
+      "id": 35,
+      "code": null,
+      "name": "Ritesh Khanna",
+      "gender": "MALE",
+      "address": "Delhi,New Delhi",
+      "dob": "",
+      "phone": "8888888888",
+      "email": "ritesh.k@gmail.com",
+      "age": 65,
+      "month": null,
+      "day": null,
+      "initial": "Mr.",
+      "initialId": 1,
+      "regId": "REG0000000035_25-26",
+      "mobileBelongsTo": "Relative",
+      "mobileBelongsToName": "Son"
+    },
+    "doctorInChargeFirst": {
+      "id": 7,
+      "name": "Dr. Vivek Prasad",
+      "email": null,
+      "username": "9999999999",
+      "altName": null,
+      "altName2": null,
+      "regNo": null,
+      "religion": null,
+      "gender": "male",
+      "identifier": null,
+      "address": "DELHI",
+      "pinCode": null,
+      "dob": null,
+      "appointDate": null,
+      "whatsappNo": null,
+      "degree": null,
+      "married": null,
+      "anniversary": null,
+      "spouseDoctor": null,
+      "spouseName": null,
+      "noOfChildren": null,
+      "drinks": null,
+      "typeOfDrink": null,
+      "movies": null,
+      "movieLang": null,
+      "cricket": null,
+      "football": null,
+      "music": null,
+      "musicLang": null,
+      "type": null,
+      "phone": "9999999999",
+      "position": "Dr.",
+      "speciality": null,
+      "referral": [],
+      "active": true
+    },
+    "doctorInChargeSecond": null,
+    "vip": false,
+    "referredFrom": "Self-admitted",
+    "inHouseRemarks": "ICU monitoring required",
+    "remarks": "Emergency admission",
+    "foodHabits": "Non-Vegetarian",
+    "admittedByName": "Wife",
+    "admittedByPhone": "1234567890",
+    "discharged": false,
+    "createdAt": "2025-10-05T01:00:00.000+00:00",
+    "updatedAt": "2025-10-05T01:00:00.000+00:00"
+  }
 ];
-// --- End Dummy Patient Data ---
+// --- End Dummy IPD Data Structure ---
 
 // Helper function to generate Bill No: BLXXXX + Today's Date (DDMMYYYY)
-const generateBillNo = (patientId) => {
+const generateBillNo = () => {
+  // Generate a random 4-digit number (1000 to 9999) for the unique prefix
+  // This ensures the first 4 digits (XXXX) are different almost every time.
+  const uniqueId = Math.floor(Math.random() * 9000) + 1000;
+  
   const today = new Date();
   const day = String(today.getDate()).padStart(2, '0');
   const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
   const year = today.getFullYear();
   
-  // Use a simple, non-unique pattern for the placeholder BL number
-  // A real application would fetch the last bill number from the store/DB
-  const billPrefix = patientId ? `BL${patientId.replace('PN', '')}` : 'BL0000'; 
+  const billPrefix = `BL${uniqueId}`;
   
+  // The Bill No will be in the format: BLXXXXDDMMYYYY (e.g., BL123417102025)
   return `${billPrefix}${day}${month}${year}`;
 };
 
@@ -81,22 +330,25 @@ const IndoorSaleForm = () => {
   const [latestSale, setLatestSale] = useState(null);
   
   // New state for patient selection
-  const [selectedPatientId, setSelectedPatientId] = useState("");
+  // The value will be the *ID* of the admission record (e.g., 25)
+  const [selectedPatientAdmissionId, setSelectedPatientAdmissionId] = useState("");
 
   // --- State Initialization ---
   const [saleDate, setSaleDate] = useState(
     () => new Date().toISOString().split("T")[0]
   );
   const [customerName, setCustomerName] = useState("");
-  const [patientId, setPatientId] = useState("");
-  const [category, setCategory] = useState("");
+  // Patient ID is now regId
+  const [patientId, setPatientId] = useState(""); 
+  const [category, setCategory] = useState(""); // This is now manually selected
   const [contactNo, setContactNo] = useState("");
   const [sex, setSex] = useState("");
   const [age, setAge] = useState("");
   const [address, setAddress] = useState("");
-  const [state, setState] = useState("");
+  const [state, setState] = useState(""); // State is part of the address string in the provided JSON, keeping it for now
   const [doctorName, setDoctorName] = useState("");
-  const [consultantRegNo, setConsultantRegNo] = useState("");
+  // Consultant Reg No is now admissionId
+  const [consultantRegNo, setConsultantRegNo] = useState(""); 
   const [bedDetails, setBedDetails] = useState("");
   const [billNo, setBillNo] = useState("");
   const [remarks, setRemarks] = useState("");
@@ -133,6 +385,7 @@ const IndoorSaleForm = () => {
   const [paymentMode, setPaymentMode] = useState("Cash");
   const [amountPaid, setAmountPaid] = useState("");
   const paymentModes = ["Cash", "Card", "UPI", "Credit", "Due"];
+  const patientCategories = ["General", "Private", "Emergency", "Others"]; // New categories array
 
   const labelClass = "block text-xs font-medium text-gray-700 mb-1";
   const inputClass =
@@ -166,8 +419,12 @@ const IndoorSaleForm = () => {
         setAmountPaid(""); // Start with empty amount paid for new payment
         setTotalSaleAmount(sale.netAmount); // Load existing total amount
         setTotalSaleQty(sale.totalSaleQty); // Load existing total quantity
-        // Also set the patient ID for display/context if available
-        setSelectedPatientId(sale.patientId || ""); 
+        
+        // This won't work perfectly without the actual admission record, 
+        // but we keep it for context if the original sale stored an ID that matches one of the DUMMY_INDOOR_PATIENTS.regId
+        const patientMatch = DUMMY_INDOOR_PATIENTS.find(p => p.patients.regId === sale.patientId);
+        setSelectedPatientAdmissionId(patientMatch ? String(patientMatch.id) : ""); 
+        
       } else {
         alert("Sale not found.");
         navigate('/indoor-sales-list');
@@ -181,7 +438,7 @@ const IndoorSaleForm = () => {
       setBillNo("");
       setSaleItems([]);
       setAmountPaid("");
-      setSelectedPatientId(""); // Reset selected patient ID
+      setSelectedPatientAdmissionId(""); // Reset selected patient ID
       setSelectedItemOriginalDetails(null);
       setCurrentStockDisplay(0);
       setEditablePureFreeQuantity("");
@@ -205,37 +462,53 @@ const IndoorSaleForm = () => {
       setPurchaseRate("");
       setTotalSaleQty(0);
       setTotalSaleAmount(0);
+      setCategory(""); // Ensure category is reset
     }
   }, [saleId, getIndoorSaleById, navigate]);
 
   // --- Logic to auto-fill patient details and generate Bill No. ---
   useEffect(() => {
-    if (!isUpdatingPayment && selectedPatientId) {
-      const patient = DUMMY_INDOOR_PATIENTS.find(
-        (p) => String(p.id) === String(selectedPatientId)
+    if (!isUpdatingPayment && selectedPatientAdmissionId) {
+      // Find the patient by the admission record ID
+      const admissionRecord = DUMMY_INDOOR_PATIENTS.find(
+        (p) => String(p.id) === String(selectedPatientAdmissionId)
       );
 
-      if (patient) {
+      if (admissionRecord) {
+        const patient = admissionRecord.patients;
+        const doctor = admissionRecord.doctorInChargeFirst;
+        const bedInfo = admissionRecord.bed;
+        const wardInfo = bedInfo.wardDTO;
+        const floorInfo = wardInfo.floorDTO;
+
+        // Map data from admission record to state variables
         setCustomerName(patient.name);
-        setPatientId(patient.id);
-        setCategory(patient.category);
-        setContactNo(patient.contact);
-        setSex(patient.sex);
+        setPatientId(patient.regId); // Use regId as Patient ID
+        // setCategory(patient.category); // Category is manual
+        setContactNo(patient.phone);
+        setSex(patient.gender);
         setAge(patient.age);
-        setAddress(patient.address);
-        setState(patient.state);
-        setDoctorName(patient.doctor);
-        setConsultantRegNo(patient.regNo);
-        setBedDetails(patient.bedDetails);
+        // Assuming the address string contains city/state: "Kolkata,Kolkata"
+        const addressParts = patient.address.split(',').map(s => s.trim());
+        setAddress(addressParts[0] || "");
+        setState(addressParts.length > 1 ? addressParts.slice(1).join(', ') : "");
         
-        // Auto-generate Bill No.
-        setBillNo(generateBillNo(patient.id));
+        setDoctorName(doctor?.name || "");
+        setConsultantRegNo(admissionRecord.admissionId); // Use admissionId as Consultant Reg No.
+        
+        // Combine Bed Details: "Bed 106, Male-General Ward, 1st Floor"
+        const fullBedDetails = `Bed ${bedInfo.name}, ${wardInfo.name} Ward, ${floorInfo.name}`;
+        setBedDetails(fullBedDetails);
+        
+        // Auto-generate Bill No. using the Patient ID (regId)
+        // The generateBillNo function now creates a unique prefix (XXXX) every time it is called.
+        setBillNo(generateBillNo(patient.regId));
       }
-    } else if (!isUpdatingPayment && !selectedPatientId) {
+    } else if (!isUpdatingPayment && !selectedPatientAdmissionId) {
       // Clear patient-specific fields when no patient is selected
       setCustomerName("");
       setPatientId("");
-      setCategory("");
+      // setCategory(""); // Keep category selection state independent of patient selection
       setContactNo("");
       setSex("");
       setAge("");
@@ -246,7 +519,7 @@ const IndoorSaleForm = () => {
       setBedDetails("");
       setBillNo(""); // Clear Bill No. if it was auto-generated
     }
-  }, [selectedPatientId, isUpdatingPayment]);
+  }, [selectedPatientAdmissionId, isUpdatingPayment]);
 
 
   useEffect(() => {
@@ -544,7 +817,7 @@ const IndoorSaleForm = () => {
     setRemarks("");
     setAmountPaid("");
     setSaleItems([]);
-    setSelectedPatientId(""); // Clear selected patient ID
+    setSelectedPatientAdmissionId(""); // Clear selected patient ID
     
     setTotalSaleAmount(0);
     setTotalSaleQty(0);
@@ -619,9 +892,14 @@ const IndoorSaleForm = () => {
       }
       
       // Final check for auto-filled patient data
-      if (!patientId || !selectedPatientId) {
+      if (!patientId || !selectedPatientAdmissionId) {
          alert("Please select an Indoor Patient to proceed with the sale.");
          return;
+      }
+      
+      if (!category) {
+          alert("Please select a Category for the sale.");
+          return;
       }
 
       const saleTransaction = {
@@ -636,7 +914,7 @@ const IndoorSaleForm = () => {
         address,
         state,
         doctorName,
-        consultantRegNo,
+        consultantRegNo, // This now holds admissionId
         bedDetails,
         billNo,
         remarks,
@@ -731,23 +1009,24 @@ const IndoorSaleForm = () => {
               </label>
               <select 
                 id="selectedPatient" 
-                value={selectedPatientId} 
-                onChange={(e) => setSelectedPatientId(e.target.value)} 
+                value={selectedPatientAdmissionId} 
+                // The Admission ID (p.id) is used as the value to easily look up the full record
+                onChange={(e) => setSelectedPatientAdmissionId(e.target.value)} 
                 disabled={isUpdatingPayment}
                 className={isUpdatingPayment ? readOnlyInputClass : inputClass} 
                 required
               >
                 <option value="">-- Select Patient --</option>
-                {DUMMY_INDOOR_PATIENTS.map((patient) => (
-                  <option key={patient.id} value={patient.id}>
-                    {patient.name} ({patient.id}) - {patient.bedDetails}
+                {DUMMY_INDOOR_PATIENTS.map((record) => (
+                  <option key={record.id} value={record.id}>
+                    {record.patients.name} ({record.patients.regId}) - Bed: {record.bed.name}
                   </option>
                 ))}
               </select>
             </div>
             <div>
                <label htmlFor="currentBillNoDisplay" className={labelClass}>
-                Generated Bill No.
+                Bill No.
               </label>
               <input type="text" id="currentBillNoDisplay" value={billNo || 'Auto-Generate on Patient Select'} className={readOnlyInputClass} readOnly />
             </div>
@@ -770,84 +1049,91 @@ const IndoorSaleForm = () => {
               <label htmlFor="customerName" className={labelClass}>
                 Customer Name {requiredSpan}
               </label>
-              <input type="text" id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} readOnly={true} className={readOnlyInputClass} required /> {/* Changed to readOnly */}
+              <input type="text" id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} readOnly={true} className={readOnlyInputClass} required />
             </div>
             <div>
               <label htmlFor="patientId" className={labelClass}>
                 Patient ID / Pn No.
               </label>
-              <input type="text" id="patientId" value={patientId} onChange={(e) => setPatientId(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="ID / Pn No." /> {/* Changed to readOnly */}
+              <input type="text" id="patientId" value={patientId} onChange={(e) => setPatientId(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="ID / Pn No." />
             </div>
             <div>
               <label htmlFor="category" className={labelClass}>
-                Category
+                Category {requiredSpan}
               </label>
-              <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} disabled={true} className={readOnlyInputClass}> {/* Changed to disabled/readOnly */}
+              <select 
+                id="category" 
+                value={category} 
+                onChange={(e) => setCategory(e.target.value)} 
+                disabled={isUpdatingPayment} 
+                className={isUpdatingPayment ? readOnlyInputClass : inputClass}
+                required
+              >
                 <option value="">-- Select --</option>
-                <option value="General">General</option>
-                <option value="Private">Private</option>
-                <option value="Emergency">Emergency</option>
+                {patientCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
               </select>
             </div>
             <div>
               <label htmlFor="contactNo" className={labelClass}>
                 Contact No.
               </label>
-              <input type="text" id="contactNo" value={contactNo} onChange={(e) => setContactNo(e.target.value)} readOnly={true} className={readOnlyInputClass} /> {/* Changed to readOnly */}
+              <input type="text" id="contactNo" value={contactNo} onChange={(e) => setContactNo(e.target.value)} readOnly={true} className={readOnlyInputClass} />
             </div>
             <div>
               <label htmlFor="sex" className={labelClass}>
                 Sex
               </label>
-              <select id="sex" value={sex} onChange={(e) => setSex(e.target.value)} disabled={true} className={readOnlyInputClass}> {/* Changed to disabled/readOnly */}
+              <select id="sex" value={sex} onChange={(e) => setSex(e.target.value)} disabled={true} className={readOnlyInputClass}>
                 <option value="">-- Select --</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHER">Other</option>
               </select>
             </div>
             <div>
               <label htmlFor="age" className={labelClass}>
                 Age
               </label>
-              <input type="number" id="age" value={age} onChange={(e) => setAge(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Age" /> {/* Changed to readOnly */}
+              <input type="number" id="age" value={age} onChange={(e) => setAge(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Age" />
             </div>
             <div className="md:col-span-3 lg:col-span-1">
               <label htmlFor="address" className={labelClass}>
                 Address
               </label>
-              <input type="text" id="address" value={address} onChange={(e) => setAddress(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Enter Address" /> {/* Changed to readOnly */}
+              <input type="text" id="address" value={address} onChange={(e) => setAddress(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Enter Address" />
             </div>
             <div>
               <label htmlFor="state" className={labelClass}>
-                State
+                State/City
               </label>
-              <input type="text" id="state" value={state} onChange={(e) => setState(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Enter State" /> {/* Changed to readOnly */}
+              <input type="text" id="state" value={state} onChange={(e) => setState(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Enter State/City" />
             </div>
             <div>
               <label htmlFor="doctorName" className={labelClass}>
                 Doctor's Name
               </label>
-              <input type="text" id="doctorName" value={doctorName} onChange={(e) => setDoctorName(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Enter Doctor Name" /> {/* Changed to readOnly */}
+              <input type="text" id="doctorName" value={doctorName} onChange={(e) => setDoctorName(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Enter Doctor Name" />
             </div>
             <div>
               <label htmlFor="consultantRegNo" className={labelClass}>
-                Consultant Reg. No.
+                Admission ID (Consultant Reg. No.)
               </label>
-              <input type="text" id="consultantRegNo" value={consultantRegNo} onChange={(e) => setConsultantRegNo(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Consultant Reg. No." /> {/* Changed to readOnly */}
+              <input type="text" id="consultantRegNo" value={consultantRegNo} onChange={(e) => setConsultantRegNo(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Consultant Reg. No." />
             </div>
             <div>
               <label htmlFor="bedDetails" className={labelClass}>
                 Bed Details
               </label>
-              <input type="text" id="bedDetails" value={bedDetails} onChange={(e) => setBedDetails(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Bed No., Ward, etc." /> {/* Changed to readOnly */}
+              <input type="text" id="bedDetails" value={bedDetails} onChange={(e) => setBedDetails(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Bed No., Ward, etc." />
             </div>
-            <div>
+            {/* <div>
               <label htmlFor="billNo" className={labelClass}>
                 Bill No. {requiredSpan}
               </label>
-              <input type="text" id="billNo" value={billNo} onChange={(e) => setBillNo(e.target.value)} readOnly={true} className={readOnlyInputClass} required /> {/* Changed to readOnly */}
-            </div>
+              <input type="text" id="billNo" value={billNo} onChange={(e) => setBillNo(e.target.value)} readOnly={true} className={readOnlyInputClass} required />
+            </div> */}
             <div className="lg:col-span-3">
               <label htmlFor="remarks" className={labelClass}>
                 Remarks
