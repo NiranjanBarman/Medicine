@@ -47,6 +47,7 @@ import ItemWiseReturnVoucher from "./components/ItemWiseReturnVoucher";
 
 function App() {
 
+
   useEffect(() => {
 
     const handleMessage = (event) => {
@@ -68,7 +69,18 @@ function App() {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  window.parent.postMessage({ type: "CHILD_READY", payload: "ok" }, "http://localhost:5173");
+
+  useEffect(() => {
+    const { state } = localStorage.getItem("indoor-sales-storage") ? JSON.parse(localStorage.getItem("indoor-sales-storage")) : [];
+    const sendDataToParent = () => {
+      window.parent.postMessage(
+        { source: 'child', payload: state?.indoorSales },
+        'http://localhost:5173' // parent domain or *
+      );
+    };
+
+    sendDataToParent();
+  }, []);
 
 
   return (
