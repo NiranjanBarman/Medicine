@@ -8,6 +8,64 @@ import PrintIndoorInvoice from "../components/PrintIndoorInvoice";
 const safeParseFloat = (value) => parseFloat(value || 0) || 0;
 const safeParseInt = (value) => parseInt(value || 0) || 0;
 
+// --- Dummy Patient Data ---
+const DUMMY_INDOOR_PATIENTS = [
+  {
+    id: "PN1001",
+    name: "Aman Sharma",
+    category: "Private",
+    contact: "9876543210",
+    sex: "Male",
+    age: "35",
+    address: "12, Civil Lines",
+    state: "Delhi",
+    doctor: "Dr. Rakesh Singh",
+    regNo: "MC-4567",
+    bedDetails: "Ward-B, Bed-102",
+  },
+  {
+    id: "PN1002",
+    name: "Priya Verma",
+    category: "General",
+    contact: "9000011111",
+    sex: "Female",
+    age: "52",
+    address: "34, South Street",
+    state: "Maharashtra",
+    doctor: "Dr. Sunita Reddy",
+    regNo: "MC-1234",
+    bedDetails: "ICU, Bed-1",
+  },
+  {
+    id: "PN1003",
+    name: "Rahul Khanna",
+    category: "Emergency",
+    contact: "8765432109",
+    sex: "Male",
+    age: "24",
+    address: "7, East Avenue",
+    state: "Uttar Pradesh",
+    doctor: "Dr. Sameer Patel",
+    regNo: "MC-7890",
+    bedDetails: "ER, Observation-5",
+  },
+];
+// --- End Dummy Patient Data ---
+
+// Helper function to generate Bill No: BLXXXX + Today's Date (DDMMYYYY)
+const generateBillNo = (patientId) => {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const year = today.getFullYear();
+  
+  // Use a simple, non-unique pattern for the placeholder BL number
+  // A real application would fetch the last bill number from the store/DB
+  const billPrefix = patientId ? `BL${patientId.replace('PN', '')}` : 'BL0000'; 
+  
+  return `${billPrefix}${day}${month}${year}`;
+};
+
 const IndoorSaleForm = () => {
   const navigate = useNavigate();
   const { saleId } = useParams();
@@ -21,6 +79,9 @@ const IndoorSaleForm = () => {
   const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
   const [originalSale, setOriginalSale] = useState(null);
   const [latestSale, setLatestSale] = useState(null);
+  
+  // New state for patient selection
+  const [selectedPatientId, setSelectedPatientId] = useState("");
 
   // --- State Initialization ---
   const [saleDate, setSaleDate] = useState(
@@ -105,6 +166,8 @@ const IndoorSaleForm = () => {
         setAmountPaid(""); // Start with empty amount paid for new payment
         setTotalSaleAmount(sale.netAmount); // Load existing total amount
         setTotalSaleQty(sale.totalSaleQty); // Load existing total quantity
+        // Also set the patient ID for display/context if available
+        setSelectedPatientId(sale.patientId || ""); 
       } else {
         alert("Sale not found.");
         navigate('/indoor-sales-list');
@@ -118,6 +181,7 @@ const IndoorSaleForm = () => {
       setBillNo("");
       setSaleItems([]);
       setAmountPaid("");
+      setSelectedPatientId(""); // Reset selected patient ID
       setSelectedItemOriginalDetails(null);
       setCurrentStockDisplay(0);
       setEditablePureFreeQuantity("");
@@ -143,6 +207,47 @@ const IndoorSaleForm = () => {
       setTotalSaleAmount(0);
     }
   }, [saleId, getIndoorSaleById, navigate]);
+
+  // --- Logic to auto-fill patient details and generate Bill No. ---
+  useEffect(() => {
+    if (!isUpdatingPayment && selectedPatientId) {
+      const patient = DUMMY_INDOOR_PATIENTS.find(
+        (p) => String(p.id) === String(selectedPatientId)
+      );
+
+      if (patient) {
+        setCustomerName(patient.name);
+        setPatientId(patient.id);
+        setCategory(patient.category);
+        setContactNo(patient.contact);
+        setSex(patient.sex);
+        setAge(patient.age);
+        setAddress(patient.address);
+        setState(patient.state);
+        setDoctorName(patient.doctor);
+        setConsultantRegNo(patient.regNo);
+        setBedDetails(patient.bedDetails);
+        
+        // Auto-generate Bill No.
+        setBillNo(generateBillNo(patient.id));
+      }
+    } else if (!isUpdatingPayment && !selectedPatientId) {
+      // Clear patient-specific fields when no patient is selected
+      setCustomerName("");
+      setPatientId("");
+      setCategory("");
+      setContactNo("");
+      setSex("");
+      setAge("");
+      setAddress("");
+      setState("");
+      setDoctorName("");
+      setConsultantRegNo("");
+      setBedDetails("");
+      setBillNo(""); // Clear Bill No. if it was auto-generated
+    }
+  }, [selectedPatientId, isUpdatingPayment]);
+
 
   useEffect(() => {
     const item = inventoryItems.find(
@@ -439,6 +544,7 @@ const IndoorSaleForm = () => {
     setRemarks("");
     setAmountPaid("");
     setSaleItems([]);
+    setSelectedPatientId(""); // Clear selected patient ID
     
     setTotalSaleAmount(0);
     setTotalSaleQty(0);
@@ -510,6 +616,12 @@ const IndoorSaleForm = () => {
       if (!saleDate || !customerName || !billNo || saleItems.length === 0) {
         alert("Please fill in required sale details (Date, Customer Name, Bill No.) and add at least one item to the sale list.");
         return;
+      }
+      
+      // Final check for auto-filled patient data
+      if (!patientId || !selectedPatientId) {
+         alert("Please select an Indoor Patient to proceed with the sale.");
+         return;
       }
 
       const saleTransaction = {
@@ -607,6 +719,42 @@ const IndoorSaleForm = () => {
       </div>
 
       <form onSubmit={handleSubmitSale} noValidate>
+        {/* NEW PATIENT SELECTION FIELDSET */}
+        <fieldset className={`border border-gray-300 p-2 rounded-md mb-2 ${isUpdatingPayment ? 'bg-gray-50' : ''}`}>
+          <legend className="text-teal-700 text-sm font-bold px-2">
+            INDOOR PATIENT SELECTION
+          </legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1.5">
+            <div>
+              <label htmlFor="selectedPatient" className={labelClass}>
+                Select Indoor Patient {requiredSpan}
+              </label>
+              <select 
+                id="selectedPatient" 
+                value={selectedPatientId} 
+                onChange={(e) => setSelectedPatientId(e.target.value)} 
+                disabled={isUpdatingPayment}
+                className={isUpdatingPayment ? readOnlyInputClass : inputClass} 
+                required
+              >
+                <option value="">-- Select Patient --</option>
+                {DUMMY_INDOOR_PATIENTS.map((patient) => (
+                  <option key={patient.id} value={patient.id}>
+                    {patient.name} ({patient.id}) - {patient.bedDetails}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+               <label htmlFor="currentBillNoDisplay" className={labelClass}>
+                Generated Bill No.
+              </label>
+              <input type="text" id="currentBillNoDisplay" value={billNo || 'Auto-Generate on Patient Select'} className={readOnlyInputClass} readOnly />
+            </div>
+          </div>
+        </fieldset>
+        {/* END NEW PATIENT SELECTION FIELDSET */}
+
         <fieldset className={`border border-gray-300 p-2 rounded-md mb-2 ${isUpdatingPayment ? 'bg-gray-50' : ''}`}>
           <legend className="text-teal-700 text-sm font-bold px-2">
             SALE DETAILS
@@ -622,19 +770,19 @@ const IndoorSaleForm = () => {
               <label htmlFor="customerName" className={labelClass}>
                 Customer Name {requiredSpan}
               </label>
-              <input type="text" id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} required />
+              <input type="text" id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} readOnly={true} className={readOnlyInputClass} required /> {/* Changed to readOnly */}
             </div>
             <div>
               <label htmlFor="patientId" className={labelClass}>
                 Patient ID / Pn No.
               </label>
-              <input type="text" id="patientId" value={patientId} onChange={(e) => setPatientId(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} placeholder="ID / Pn No." />
+              <input type="text" id="patientId" value={patientId} onChange={(e) => setPatientId(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="ID / Pn No." /> {/* Changed to readOnly */}
             </div>
             <div>
               <label htmlFor="category" className={labelClass}>
                 Category
               </label>
-              <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} disabled={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass}>
+              <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} disabled={true} className={readOnlyInputClass}> {/* Changed to disabled/readOnly */}
                 <option value="">-- Select --</option>
                 <option value="General">General</option>
                 <option value="Private">Private</option>
@@ -645,13 +793,13 @@ const IndoorSaleForm = () => {
               <label htmlFor="contactNo" className={labelClass}>
                 Contact No.
               </label>
-              <input type="text" id="contactNo" value={contactNo} onChange={(e) => setContactNo(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} />
+              <input type="text" id="contactNo" value={contactNo} onChange={(e) => setContactNo(e.target.value)} readOnly={true} className={readOnlyInputClass} /> {/* Changed to readOnly */}
             </div>
             <div>
               <label htmlFor="sex" className={labelClass}>
                 Sex
               </label>
-              <select id="sex" value={sex} onChange={(e) => setSex(e.target.value)} disabled={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass}>
+              <select id="sex" value={sex} onChange={(e) => setSex(e.target.value)} disabled={true} className={readOnlyInputClass}> {/* Changed to disabled/readOnly */}
                 <option value="">-- Select --</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -662,43 +810,43 @@ const IndoorSaleForm = () => {
               <label htmlFor="age" className={labelClass}>
                 Age
               </label>
-              <input type="number" id="age" value={age} onChange={(e) => setAge(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} placeholder="Age" />
+              <input type="number" id="age" value={age} onChange={(e) => setAge(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Age" /> {/* Changed to readOnly */}
             </div>
             <div className="md:col-span-3 lg:col-span-1">
               <label htmlFor="address" className={labelClass}>
                 Address
               </label>
-              <input type="text" id="address" value={address} onChange={(e) => setAddress(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} placeholder="Enter Address" />
+              <input type="text" id="address" value={address} onChange={(e) => setAddress(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Enter Address" /> {/* Changed to readOnly */}
             </div>
             <div>
               <label htmlFor="state" className={labelClass}>
                 State
               </label>
-              <input type="text" id="state" value={state} onChange={(e) => setState(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} placeholder="Enter State" />
+              <input type="text" id="state" value={state} onChange={(e) => setState(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Enter State" /> {/* Changed to readOnly */}
             </div>
             <div>
               <label htmlFor="doctorName" className={labelClass}>
                 Doctor's Name
               </label>
-              <input type="text" id="doctorName" value={doctorName} onChange={(e) => setDoctorName(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} placeholder="Enter Doctor Name" />
+              <input type="text" id="doctorName" value={doctorName} onChange={(e) => setDoctorName(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Enter Doctor Name" /> {/* Changed to readOnly */}
             </div>
             <div>
               <label htmlFor="consultantRegNo" className={labelClass}>
                 Consultant Reg. No.
               </label>
-              <input type="text" id="consultantRegNo" value={consultantRegNo} onChange={(e) => setConsultantRegNo(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} placeholder="Consultant Reg. No." />
+              <input type="text" id="consultantRegNo" value={consultantRegNo} onChange={(e) => setConsultantRegNo(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Consultant Reg. No." /> {/* Changed to readOnly */}
             </div>
             <div>
               <label htmlFor="bedDetails" className={labelClass}>
                 Bed Details
               </label>
-              <input type="text" id="bedDetails" value={bedDetails} onChange={(e) => setBedDetails(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} placeholder="Bed No., Ward, etc." />
+              <input type="text" id="bedDetails" value={bedDetails} onChange={(e) => setBedDetails(e.target.value)} readOnly={true} className={readOnlyInputClass} placeholder="Bed No., Ward, etc." /> {/* Changed to readOnly */}
             </div>
             <div>
               <label htmlFor="billNo" className={labelClass}>
                 Bill No. {requiredSpan}
               </label>
-              <input type="text" id="billNo" value={billNo} onChange={(e) => setBillNo(e.target.value)} readOnly={isUpdatingPayment} className={isUpdatingPayment ? readOnlyInputClass : inputClass} required />
+              <input type="text" id="billNo" value={billNo} onChange={(e) => setBillNo(e.target.value)} readOnly={true} className={readOnlyInputClass} required /> {/* Changed to readOnly */}
             </div>
             <div className="lg:col-span-3">
               <label htmlFor="remarks" className={labelClass}>
