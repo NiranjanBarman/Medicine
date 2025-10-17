@@ -50,15 +50,17 @@ function App() {
   useEffect(() => {
 
     const handleMessage = (event) => {
-      console.log("Parent Data: ", event);
-
+      // console.log("Parent Data: ", event);
       if (event.origin !== "http://localhost:5173") return;
 
-
-
       if (event.data.type === "SET_USER") {
-        console.log("Data from parent:", event.data.payload);
-        localStorage.setItem("userData", JSON.stringify(event.data.payload));
+        // console.log("Data from parent:", event.data.payload);
+        if (localStorage.getItem("userData") === null) {
+          localStorage.setItem("userData", JSON.stringify(event.data.payload));
+        } else {
+          localStorage.removeItem("userData");
+          localStorage.setItem("userData", JSON.stringify(event.data.payload));
+        }
       }
     };
 
