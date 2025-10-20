@@ -52,7 +52,7 @@ function App() {
 
     const handleMessage = (event) => {
       // console.log("Parent Data: ", event);
-      if (event.origin !== "http://localhost:5174") return;
+      if (event.origin !== "http://145.223.19.147:5174") return;
 
       if (event.data.type === "SET_USER") {
         // console.log("Data from parent:", event.data.payload);
@@ -75,7 +75,7 @@ function App() {
     const sendDataToParent = () => {
       window.parent.postMessage(
         { source: 'child', payload: state?.indoorSales },
-        'http://localhost:5174' // parent domain or *
+        'http://145.223.19.147:5174' // parent domain or *
       );
     };
 
