@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useCallback } from "react"; // Import useCallback
+import React, { useState, useEffect, useCallback } from "react";
 import useItemMedicineStore from "../store/itemMedicineStore";
 import useGenericStore from "../store/genericStore";
 import useManufacturerStore from "../store/manufacturerStore";
 import { useNavigate, useParams } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { v4 as generateUUID } from 'uuid';
+
+// --- GLOBAL CONSTANTS & UTILITIES (Moved outside component for stability) ---
 
 const productTypes = ["MEDICINE", "EQUIPMENT"];
-let currentProductCategories = [
+// 1. CRITICAL FIX: Changed from 'let' to 'const' for the initial list.
+const initialProductCategories = [
   "TABLET",
   "SYRUP",
   "CAPSULE",
@@ -47,13 +51,35 @@ const saleUnits = ["Strip", "Bottle", "Box", "Packet", "Piece", "N/A"];
 const drugSchedules = ["H", "H1", "X", "G", "Other", "N/A"];
 const statuses = ["ACTIVE", "INACTIVE"];
 
+// 2. CLEANUP: Consolidated item code generation outside the component
+const generateItemCode = () => {
+  const date = new Date();
+  let year = date.getFullYear();
+  let month = date.getMonth();
+
+  // Determine financial year (April to March)
+  let financialYearStart = year;
+  let financialYearEnd = (year % 100) + 1;
+
+  if (month < 3) {
+    // Months 0-2 are Jan-Mar, so previous financial year
+    financialYearStart--;
+    financialYearEnd = year % 100;
+  }
+
+  const uniquePart = generateUUID().replace(/-/g, "").substring(0, 10);
+  return `ITM${uniquePart}_${String(financialYearStart).slice(2)}-${String(
+    financialYearEnd
+  ).padStart(2, "0")}`;
+};
+
 const AddEditItemMedicine = () => {
   const addItemsBulk = useItemMedicineStore.getState().addItemsBulk;
 
-  const manufacturers = useManufacturerStore((state) => state.manufacturers);
-  const generics = useGenericStore((state) => state.generics);
+  // Use defensive defaults for store data retrieval
+  const manufacturers = useManufacturerStore((state) => state.manufacturers) || [];
+  const generics = useGenericStore((state) => state.generics) || [];
 
-  // Get items from the store to display total count
   const { items, addItem, updateItem } = useItemMedicineStore();
 
   const handleBulkUpload = (e) => {
@@ -69,34 +95,34 @@ const AddEditItemMedicine = () => {
       const json = XLSX.utils.sheet_to_json(sheet);
 
       const validItems = json.map((row) => ({
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         brandName: row["ITEM_NAME"] || "",
         cfQty: row["QTY"] || "",
         productCategory: row["PRODUCT_CATEGORY"] || "",
         expiryCheck: row["EXPIRY_DATE"] || "",
         manufacturerMake: row["MANUFACTURER"] || "",
-        nameOfGeneric: row["GENERIC NAME"] || "",
+        nameOfGeneric: row["GENERIC_NAME"] || "",
         purchaseRate: row["PURCHASE_RATE"] || "",
         purchaseMrpStrip: row["MRP"] || "",
         productType: "MEDICINE",
-        subCategory: "SUB_CATAGORY", // Placeholder, as not in template
-        formulation: "FORMULATION", // Placeholder, as not in template
-        subSubCategory: "SUB_SUB_CATAGORY", // Placeholder, as not in template
-        strength: "STRENGTH",
-        drugSchedule: "DRUG_SCHEDULE",
-        packaging: "PACKAGING",
-        tradeName: "TRADE_NAME",
-        hsnCode: "HSN_CODE",
-        gstIgst: "GST_IGST",
-        cgst: "CGST",
-        sgst: "SGST",
-        cfUnit: "CF_UNIT",
+        // 3. FIX: Replace static placeholders with empty strings or default values for missing data
+        subCategory: row["SUB_CATAGORY"] || "",
+        formulation: row["FORMULATION"] || "",
+        subSubCategory: row["SUB_SUB_CATAGORY"] || "",
+        strength: row["STRENGTH"] || "",
+        drugSchedule: row["DRUG_SCHEDULE"] || "",
+        packaging: row["PACKAGING"] || "",
+        tradeName: row["TRADE_NAME"] || "",
+        hsnCode: row["HSN_CODE"] || "",
+        gstIgst: row["GST_IGST"] || "",
+        cgst: row["CGST"] || "",
+        sgst: row["SGST"] || "",
+        cfUnit: row["CF_UNIT"] || "",
         stockAlertQty: row["STOCK_ALERT"] || "",
-        purchaseUnit: "PURCHSE_UNIT",
-        saleRateStrip: "SALE_RATE_STRIP",
-        saleUnit: "SALE_UNIT",
-        // purchaseMrpStrip: '',
-        expiryCheckFormat: "EXP", // Default for bulk upload if not specified
+        purchaseUnit: row["PURCHSE_UNIT"] || "",
+        saleRateStrip: row["SALE_RATE_STRIP"] || "",
+        saleUnit: row["SALE_UNIT"] || "",
+        expiryCheckFormat: row["EXP"] || "EXP",
         onlineItem: false,
         popularItem: false,
         returnable: false,
@@ -113,8 +139,13 @@ const AddEditItemMedicine = () => {
 
   const { itemId } = useParams();
   const navigate = useNavigate();
-  // const { items, addItem, updateItem } = useItemMedicineStore(); // Already destructured above
+  
+  // 4. CRITICAL FIX: Product categories managed by state
+  const [currentProductCategories, setCurrentProductCategories] = useState(
+    initialProductCategories
+  );
 
+  // --- FORM STATE ---
   const [productType, setProductType] = useState("MEDICINE");
   const [productCategory, setProductCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
@@ -149,30 +180,7 @@ const AddEditItemMedicine = () => {
 
   const isEditing = Boolean(itemId);
 
-  // Function to generate unique item code
-  const generateItemCode = () => {
-    const date = new Date();
-    let year = date.getFullYear();
-    let month = date.getMonth();
-
-    // Determine financial year (April to March)
-    let financialYearStart = year;
-    let financialYearEnd = (year % 100) + 1;
-
-    if (month < 3) {
-      // Months 0-2 are Jan-Mar, so previous financial year
-      financialYearStart--;
-      financialYearEnd = year % 100;
-    }
-
-    const uniquePart = crypto.randomUUID().replace(/-/g, "").substring(0, 10);
-    return `ITM${uniquePart}_${String(financialYearStart).slice(2)}-${String(
-      financialYearEnd
-    ).padStart(2, "0")}`;
-  };
-
-  // Wrap resetForm in useCallback to prevent it from changing on every render,
-  // which would cause an infinite loop with useEffect
+  // Wrap resetForm in useCallback
   const resetForm = useCallback(() => {
     setProductType("MEDICINE");
     setProductCategory("");
@@ -204,8 +212,8 @@ const AddEditItemMedicine = () => {
     setPopularItem(false);
     setReturnable(false);
     setStatus("ACTIVE");
-    setItemCode(generateItemCode()); // Generate new itemCode on reset
-  }, []); // Empty dependency array as generateItemCode doesn't depend on component state/props
+    setItemCode(generateItemCode()); // Use the moved function
+  }, []);
 
   useEffect(() => {
     if (isEditing && items.length > 0) {
@@ -242,20 +250,23 @@ const AddEditItemMedicine = () => {
         setStatus(itemToEdit.status || "ACTIVE");
         setItemCode(itemToEdit.itemCode || "");
 
+        // 5. CRITICAL FIX: Use state setter to add the category from the item to the list
         if (
           itemToEdit.productCategory &&
           !currentProductCategories.includes(itemToEdit.productCategory)
         ) {
-          currentProductCategories.push(itemToEdit.productCategory);
+          setCurrentProductCategories(prev => [...prev, itemToEdit.productCategory]);
         }
       } else {
         alert("Item/Medicine not found for editing.");
         navigate("/items");
       }
     } else if (!isEditing) {
-      resetForm(); // Call resetForm to generate initial itemCode
+      resetForm();
     }
-  }, [itemId, items, isEditing, navigate, resetForm]); // Added resetForm to dependency array
+    // Added currentProductCategories to dependency array for correct category check
+  }, [itemId, items, isEditing, navigate, resetForm, currentProductCategories]); 
+  
   //Template Download (XL)
   const downloadTemplate = () => {
     const worksheet = XLSX.utils.json_to_sheet([
@@ -269,15 +280,13 @@ const AddEditItemMedicine = () => {
         PURCHASE_RATE: "",
         MRP: "",
         STOCK_ALERT: "",
-        // The following are mostly auto-generated or fixed defaults,
-        // but including as columns helps user understand structure.
         TRADE_NAME: "",
         FORMULATION: "",
         PACKAGING: "",
         DRUG_SCHEDULE: "",
         STRENGTH: "",
-        SUB_CATAGORY: "",
-        SUB_SUB_CATAGORY: "",
+        SUB_CATAGORY: "", // Included as it was used in bulk upload
+        SUB_SUB_CATAGORY: "", // Included as it was used in bulk upload
         HSN_CODE: "",
         GST_IGST: "",
         CGST: "",
@@ -286,7 +295,7 @@ const AddEditItemMedicine = () => {
         PURCHSE_UNIT: "",
         SALE_RATE_STRIP: "",
         SALE_UNIT: "",
-        EXP: "", // expiry format (optional)
+        EXP: "",
       },
     ]);
 
@@ -297,6 +306,7 @@ const AddEditItemMedicine = () => {
     const blob = new Blob([wbout], { type: "application/octet-stream" });
     saveAs(blob, "item-master-template.xlsx");
   };
+  
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -315,15 +325,16 @@ const AddEditItemMedicine = () => {
       return;
     }
 
+    // 6. CRITICAL FIX: Use state setter to add the category if it's new
     if (
       productCategory &&
       !currentProductCategories.includes(productCategory)
     ) {
-      currentProductCategories.push(productCategory);
+      setCurrentProductCategories(prev => [...prev, productCategory]);
     }
 
     const itemData = {
-      id: isEditing ? itemId : crypto.randomUUID(),
+      id: isEditing ? itemId : generateUUID(),
       productType,
       productCategory,
       subCategory,
@@ -362,7 +373,7 @@ const AddEditItemMedicine = () => {
     } else {
       addItem(itemData);
       alert("Item/Medicine added successfully!");
-      resetForm(); // Reset form after adding a new item
+      resetForm();
     }
 
     navigate("/additems-list");
@@ -445,25 +456,27 @@ const AddEditItemMedicine = () => {
               ))}
             </select>
           </div>
-          {/* Product Category - Now with datalist */}
+          {/* 7. CRITICAL FIX: Product Category - Changed to input/datalist */}
           <div>
             <label htmlFor="productCategory" className={labelClass}>
               Product Category
             </label>
-            <select
+            <input
+              list="productCategoriesDatalist"
+              type="text"
               id="productCategory"
               value={productCategory}
               onChange={(e) => setProductCategory(e.target.value)}
-              className={selectClass}
-              required
-            >
-              <option value="">Select Category</option>
+              className={inputClass}
+              placeholder="Select or enter new category"
+              required // Added 'required' based on original select structure
+            />
+            <datalist id="productCategoriesDatalist">
+              {/* Uses the state array */}
               {currentProductCategories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
+                <option key={cat} value={cat} />
               ))}
-            </select>
+            </datalist>
           </div>
 
           {/* Sub Category */}
@@ -506,6 +519,7 @@ const AddEditItemMedicine = () => {
                 className={`${selectClass} flex-grow`}
               >
                 <option value="">Select Generic</option>
+                {/* 8. Defensive Check for Generics */}
                 {generics.map((generic) => (
                   <option key={generic.id} value={generic.id}>
                     {generic.generic1}
@@ -628,6 +642,7 @@ const AddEditItemMedicine = () => {
                 required
               >
                 <option value="">Select Manufacturer</option>
+                {/* 9. Defensive Check for Manufacturers */}
                 {manufacturers.map((mfg) => (
                   <option key={mfg.id} value={mfg.id}>
                     {mfg.name}
@@ -888,7 +903,7 @@ const AddEditItemMedicine = () => {
                 value={itemCode}
                 onChange={(e) => setItemCode(e.target.value)}
                 className={inputClass}
-                readOnly // Item Code is generated, usually read-only
+                readOnly
               />
             </div>
           </div>

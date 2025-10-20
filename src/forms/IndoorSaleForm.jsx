@@ -303,14 +303,14 @@ const generateBillNo = () => {
   // Generate a random 4-digit number (1000 to 9999) for the unique prefix
   // This ensures the first 4 digits (XXXX) are different almost every time.
   const uniqueId = Math.floor(Math.random() * 9000) + 1000;
-
+  
   const today = new Date();
   const day = String(today.getDate()).padStart(2, '0');
   const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
   const year = today.getFullYear();
-
+  
   const billPrefix = `BL${uniqueId}`;
-
+  
   // The Bill No will be in the format: BLXXXXDDMMYYYY (e.g., BL123417102025)
   return `${billPrefix}${day}${month}${year}`;
 };
@@ -320,8 +320,6 @@ const IndoorSaleForm = () => {
   const { saleId } = useParams();
   const printComponentRef = useRef();
 
-  const [admissionRecords, setAdmissionRecords] = useState(localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData")) : []);
-
   const { inventoryItems, updateItemStockInPurchase } =
     usePurchaseTransactionStore();
   const { addIndoorSale, updateIndoorSalePayment, getIndoorSaleById } =
@@ -330,7 +328,7 @@ const IndoorSaleForm = () => {
   const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
   const [originalSale, setOriginalSale] = useState(null);
   const [latestSale, setLatestSale] = useState(null);
-
+  
   // New state for patient selection
   // The value will be the *ID* of the admission record (e.g., 25)
   const [selectedPatientAdmissionId, setSelectedPatientAdmissionId] = useState("");
@@ -341,7 +339,7 @@ const IndoorSaleForm = () => {
   );
   const [customerName, setCustomerName] = useState("");
   // Patient ID is now regId
-  const [patientId, setPatientId] = useState("");
+  const [patientId, setPatientId] = useState(""); 
   const [category, setCategory] = useState(""); // This is now manually selected
   const [contactNo, setContactNo] = useState("");
   const [sex, setSex] = useState("");
@@ -350,7 +348,7 @@ const IndoorSaleForm = () => {
   const [state, setState] = useState(""); // State is part of the address string in the provided JSON, keeping it for now
   const [doctorName, setDoctorName] = useState("");
   // Consultant Reg No is now admissionId
-  const [consultantRegNo, setConsultantRegNo] = useState("");
+  const [consultantRegNo, setConsultantRegNo] = useState(""); 
   const [bedDetails, setBedDetails] = useState("");
   const [billNo, setBillNo] = useState("");
   const [remarks, setRemarks] = useState("");
@@ -421,12 +419,12 @@ const IndoorSaleForm = () => {
         setAmountPaid(""); // Start with empty amount paid for new payment
         setTotalSaleAmount(sale.netAmount); // Load existing total amount
         setTotalSaleQty(sale.totalSaleQty); // Load existing total quantity
-
+        
         // This won't work perfectly without the actual admission record, 
         // but we keep it for context if the original sale stored an ID that matches one of the DUMMY_INDOOR_PATIENTS.regId
-        const patientMatch = admissionRecords.find(p => p.patients.regId === sale.patientId);
-        setSelectedPatientAdmissionId(patientMatch ? String(patientMatch.id) : "");
-
+        const patientMatch = DUMMY_INDOOR_PATIENTS.find(p => p.patients.regId === sale.patientId);
+        setSelectedPatientAdmissionId(patientMatch ? String(patientMatch.id) : ""); 
+        
       } else {
         alert("Sale not found.");
         navigate('/indoor-sales-list');
@@ -472,7 +470,7 @@ const IndoorSaleForm = () => {
   useEffect(() => {
     if (!isUpdatingPayment && selectedPatientAdmissionId) {
       // Find the patient by the admission record ID
-      const admissionRecord = admissionRecords.find(
+      const admissionRecord = DUMMY_INDOOR_PATIENTS.find(
         (p) => String(p.id) === String(selectedPatientAdmissionId)
       );
 
@@ -494,14 +492,14 @@ const IndoorSaleForm = () => {
         const addressParts = patient.address.split(',').map(s => s.trim());
         setAddress(addressParts[0] || "");
         setState(addressParts.length > 1 ? addressParts.slice(1).join(', ') : "");
-
+        
         setDoctorName(doctor?.name || "");
         setConsultantRegNo(admissionRecord.admissionId); // Use admissionId as Consultant Reg No.
-
+        
         // Combine Bed Details: "Bed 106, Male-General Ward, 1st Floor"
         const fullBedDetails = `Bed ${bedInfo.name}, ${wardInfo.name} Ward, ${floorInfo.name}`;
         setBedDetails(fullBedDetails);
-
+        
         // Auto-generate Bill No. using the Patient ID (regId)
         // The generateBillNo function now creates a unique prefix (XXXX) every time it is called.
         setBillNo(generateBillNo(patient.regId));
@@ -705,7 +703,8 @@ const IndoorSaleForm = () => {
 
     if (totalSoldQtyInStrips > currentStockDisplay) {
       alert(
-        `Not enough stock. Available: ${currentStockDisplay} ${selectedItemOriginalDetails.saleUnit || "Strip"
+        `Not enough stock. Available: ${currentStockDisplay} ${
+          selectedItemOriginalDetails.saleUnit || "Strip"
         }.`
       );
       return;
@@ -799,7 +798,7 @@ const IndoorSaleForm = () => {
       );
     });
   };
-
+  
   const clearFormFields = useCallback(() => {
     setSaleDate(new Date().toISOString().split("T")[0]);
     setCustomerName("");
@@ -819,10 +818,10 @@ const IndoorSaleForm = () => {
     setAmountPaid("");
     setSaleItems([]);
     setSelectedPatientAdmissionId(""); // Clear selected patient ID
-
+    
     setTotalSaleAmount(0);
     setTotalSaleQty(0);
-
+    
     setCfUnit("");
     setSelectedItemId("");
     setSelectedItemOriginalDetails(null);
@@ -846,7 +845,7 @@ const IndoorSaleForm = () => {
     setDiscPercent("");
     setPurchaseRate("");
   }, []);
-
+  
   const handleResetForm = useCallback(() => {
     clearFormFields();
   }, [clearFormFields]);
@@ -863,7 +862,7 @@ const IndoorSaleForm = () => {
         alert("Payment amount cannot be negative.");
         return;
       }
-
+      
       const newTotalPaidAmount = alreadyPaid + newPaymentInput;
 
       if (newTotalPaidAmount > totalSaleAmountAfterPayment + 0.01) {
@@ -891,16 +890,16 @@ const IndoorSaleForm = () => {
         alert("Please fill in required sale details (Date, Customer Name, Bill No.) and add at least one item to the sale list.");
         return;
       }
-
+      
       // Final check for auto-filled patient data
       if (!patientId || !selectedPatientAdmissionId) {
-        alert("Please select an Indoor Patient to proceed with the sale.");
-        return;
+         alert("Please select an Indoor Patient to proceed with the sale.");
+         return;
       }
-
+      
       if (!category) {
-        alert("Please select a Category for the sale.");
-        return;
+          alert("Please select a Category for the sale.");
+          return;
       }
 
       const saleTransaction = {
@@ -944,7 +943,7 @@ const IndoorSaleForm = () => {
 
         addIndoorSale(saleTransaction);
         setLatestSale(saleTransaction);
-
+        
         alert("Sale completed successfully!");
 
         navigate(`/print-indoor/${saleTransaction.id}`);
@@ -1008,25 +1007,25 @@ const IndoorSaleForm = () => {
               <label htmlFor="selectedPatient" className={labelClass}>
                 Select Indoor Patient {requiredSpan}
               </label>
-              <select
-                id="selectedPatient"
-                value={selectedPatientAdmissionId}
+              <select 
+                id="selectedPatient" 
+                value={selectedPatientAdmissionId} 
                 // The Admission ID (p.id) is used as the value to easily look up the full record
-                onChange={(e) => setSelectedPatientAdmissionId(e.target.value)}
+                onChange={(e) => setSelectedPatientAdmissionId(e.target.value)} 
                 disabled={isUpdatingPayment}
-                className={isUpdatingPayment ? readOnlyInputClass : inputClass}
+                className={isUpdatingPayment ? readOnlyInputClass : inputClass} 
                 required
               >
                 <option value="">-- Select Patient --</option>
-                {admissionRecords.map((record) => (
+                {DUMMY_INDOOR_PATIENTS.map((record) => (
                   <option key={record.id} value={record.id}>
-                    {record.patients.initial?.toUpperCase()} {record.patients.name?.toUpperCase()} ({record.patients.regId}) - Bed: {record.bed.name}
+                    {record.patients.name} ({record.patients.regId}) - Bed: {record.bed.name}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label htmlFor="currentBillNoDisplay" className={labelClass}>
+               <label htmlFor="currentBillNoDisplay" className={labelClass}>
                 Bill No.
               </label>
               <input type="text" id="currentBillNoDisplay" value={billNo || 'Auto-Generate on Patient Select'} className={readOnlyInputClass} readOnly />
@@ -1062,11 +1061,11 @@ const IndoorSaleForm = () => {
               <label htmlFor="category" className={labelClass}>
                 Category {requiredSpan}
               </label>
-              <select
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                disabled={isUpdatingPayment}
+              <select 
+                id="category" 
+                value={category} 
+                onChange={(e) => setCategory(e.target.value)} 
+                disabled={isUpdatingPayment} 
                 className={isUpdatingPayment ? readOnlyInputClass : inputClass}
                 required
               >
@@ -1204,7 +1203,7 @@ const IndoorSaleForm = () => {
                             <option value="">-- Select an Item --</option>
                             {sortedAvailableInventoryItems.map((item) => (
                               <option key={item.id} value={item.id}>
-
+                                
                                 {item.nameOfItemMedicine || "Unnamed Item"} (
                                 {item.itemManufacturerMake || "No Manufacturer"})
                                 Exp: {item.expDate || "N/A"},{" "}
@@ -1233,8 +1232,9 @@ const IndoorSaleForm = () => {
                         <input
                           type="text"
                           id="currentStock"
-                          value={`${currentStockDisplay} ${selectedItemOriginalDetails.saleUnit || "Strip"
-                            }`}
+                          value={`${currentStockDisplay} ${
+                            selectedItemOriginalDetails.saleUnit || "Strip"
+                          }`}
                           className={readOnlyInputClass}
                           readOnly
                         />
@@ -1594,14 +1594,14 @@ const IndoorSaleForm = () => {
                       <span>₹{totalGst.toFixed(2)}</span>
                     </div> */}
                     <div className="flex justify-between text-sm text-gray-600">
-                      <span>Sub-Total:</span>
-                      <span>₹{totalSaleAmount.toFixed(2)}</span>
+                        <span>Sub-Total:</span>
+                        <span>₹{totalSaleAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-gray-600">
-                      <span>Round Off:</span>
-                      <span className={roundOffAmount < 0 ? "text-red-500" : "text-green-500"}>
-                        {roundOffAmount < 0 ? "- " : "+ "}₹{Math.abs(roundOffAmount).toFixed(2)}
-                      </span>
+                       <span>Round Off:</span>
+                            <span className={roundOffAmount < 0 ? "text-red-500" : "text-green-500"}>
+                                {roundOffAmount < 0 ? "- " : "+ "}₹{Math.abs(roundOffAmount).toFixed(2)}
+                            </span>
                     </div>
                     <div className="flex justify-between text-lg font-bold text-teal-700 border-t pt-2">
                       <span>Net Amount:</span>
@@ -1750,45 +1750,45 @@ const IndoorSaleForm = () => {
             <div className="w-full">
               {saleItems.length > 0 && (
                 <div className="overflow-x-auto border border-gray-300 rounded-md">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-1 px-2 pt-2">
-                    Items in this Sale
-                  </h3>
-                  <table className="min-w-full bg-white text-xs">
-                    <thead className="bg-gray-100 text-gray-700">
-                      <tr>
-                        <th className="px-2 py-1.5 border-b">Item Name</th>
-                        <th className="px-2 py-1.5 border-b">Batch/Exp</th>
-                        <th className="px-2 py-1.5 border-b">Barcode</th>
-                        <th className="px-2 py-1.5 border-b">Strip Qty</th>
-                        <th className="px-2 py-1.5 border-b">Loose Qty</th>
-                        <th className="px-2 py-1.5 border-b">Net Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {saleItems.map((item) => (
-                        <tr key={item.saleEntryId} className="hover:bg-gray-50">
-                          <td className="px-2 py-1.5 border-b">
-                            {item.nameOfItemMedicine}
-                          </td>
-                          <td className="px-2 py-1.5 border-b">
-                            {item.batchSrlNo}/{item.expDate}
-                          </td>
-                          <td className="px-2 py-1.5 border-b">
-                            {item.barcode || "N/A"}
-                          </td>
-                          <td className="px-2 py-1.5 border-b">
-                            {item.stripQty}
-                          </td>
-                          <td className="px-2 py-1.5 border-b">
-                            {item.looseQty}
-                          </td>
-                          <td className="px-2 py-1.5 border-b">
-                            ₹{item.netAmount.toFixed(2)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-1 px-2 pt-2">
+                        Items in this Sale
+                    </h3>
+                    <table className="min-w-full bg-white text-xs">
+                        <thead className="bg-gray-100 text-gray-700">
+                            <tr>
+                                <th className="px-2 py-1.5 border-b">Item Name</th>
+                                <th className="px-2 py-1.5 border-b">Batch/Exp</th>
+                                <th className="px-2 py-1.5 border-b">Barcode</th>
+                                <th className="px-2 py-1.5 border-b">Strip Qty</th>
+                                <th className="px-2 py-1.5 border-b">Loose Qty</th>
+                                <th className="px-2 py-1.5 border-b">Net Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {saleItems.map((item) => (
+                                <tr key={item.saleEntryId} className="hover:bg-gray-50">
+                                    <td className="px-2 py-1.5 border-b">
+                                        {item.nameOfItemMedicine}
+                                    </td>
+                                    <td className="px-2 py-1.5 border-b">
+                                        {item.batchSrlNo}/{item.expDate}
+                                    </td>
+                                    <td className="px-2 py-1.5 border-b">
+                                        {item.barcode || "N/A"}
+                                    </td>
+                                    <td className="px-2 py-1.5 border-b">
+                                        {item.stripQty}
+                                    </td>
+                                    <td className="px-2 py-1.5 border-b">
+                                        {item.looseQty}
+                                    </td>
+                                    <td className="px-2 py-1.5 border-b">
+                                        ₹{item.netAmount.toFixed(2)}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
               )}
             </div>
@@ -1796,13 +1796,13 @@ const IndoorSaleForm = () => {
             <div className="w-full lg:w-1/3 flex flex-col gap-3">
               <fieldset className="border border-gray-300 p-2 rounded-md bg-white shadow-sm">
                 <legend className="text-teal-700 text-sm font-bold px-2">
-                  SUMMARY
+                    SUMMARY
                 </legend>
                 <div className="space-y-2 mt-1">
-                  <div className="flex justify-between text-lg font-bold text-teal-700 border-t pt-2">
-                    <span>Net Amount:</span>
-                    <span>₹{netAmount.toFixed(2)}</span>
-                  </div>
+                    <div className="flex justify-between text-lg font-bold text-teal-700 border-t pt-2">
+                        <span>Net Amount:</span>
+                        <span>₹{netAmount.toFixed(2)}</span>
+                    </div>
                 </div>
               </fieldset>
               <fieldset className="border border-gray-300 p-2 rounded-md bg-white shadow-sm">
@@ -1920,7 +1920,7 @@ const IndoorSaleForm = () => {
           </button>
         </div>
       </form>
-
+      
       <div style={{ display: 'none' }}>
         {latestSale && <PrintIndoorInvoice ref={printComponentRef} invoiceData={latestSale} />}
       </div>
